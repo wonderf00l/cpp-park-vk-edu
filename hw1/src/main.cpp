@@ -1,7 +1,14 @@
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <unistd.h>
 #include <string>
+
+struct date {
+    std::string year;
+    std::string month;
+    std::string day;
+};
 
 int parse_args(int argc, char* argv[], std::string& art_path, std::string& art_t_path, std::string& gen_path, std::string& name) {
     
@@ -59,7 +66,16 @@ int parse_args(int argc, char* argv[], std::string& art_path, std::string& art_t
     return error;
 }
 
+char* str_tokenize(const std::string& row, char** tok) {
+    *tok = new char[row.length() + 1];
+    std::strcpy(*tok, row.c_str());
+    return std::strtok(*tok, "\t");
+}
+
+
 int main(int argc, char* argv[]) {
+
+    setlocale(0, ".UTF8");
 
     std::string artist_path;
     std::string artist_t_path;
@@ -71,5 +87,64 @@ int main(int argc, char* argv[]) {
     }
 
     //std::cout << artist_path << "---" << artist_t_path << "---" << gender_path << "---" << name << std::endl;
+
+    std::ifstream artist_dataset(artist_path);
+
+    std::string row;
+
+    bool was_found = 0;
+
+    while (getline(artist_dataset, row)) {
+        char* token = nullptr;
+
+        token = str_tokenize(row, &token);
+        
+        for (int i = 0; token && i != 2; ++i) {
+            token = std::strtok(nullptr, "\t");
+        }
+
+        std::cout << token << std::endl;
+        //Abigale Undead
+
+        date date_of_birth = {};
+
+        date_of_birth.year = std::string(std::strtok(nullptr, "\t"));
+        date_of_birth.month = std::string(std::strtok(nullptr, "\t"));
+        date_of_birth.day = std::string(std::strtok(nullptr, "\t"));
+
+        if (name == token) {
+
+            std::cout << "??" << token << "??" << std::endl;
+
+
+            for (int i = 0; token && i != 8; ++i) {
+                token = std::strtok(nullptr, "\t");
+            }
+            std::cout << "??" << token << "??" << std::endl;
+
+            if (std::stoi(token) == 1 || std::string(token) == "person" || std::string(token) == "Person") {
+                
+                std::cout << date_of_birth.year << "!!" << date_of_birth.month << "!!" << date_of_birth.day << std::endl;
+            }
+
+            was_found = 1;
+
+            return 0;
+
+            //std::ifstream artist_type_dataset(artist_t_path);
+
+
+            // char* token_ = nullptr;
+
+            // token_ = str_tokenize(row,);
+
+        }
+    }
+
+    if (!was_found) {
+        std::cout << "NO ARTIST" << std::endl;
+    }
+
+    artist_dataset.close();
 
 }
