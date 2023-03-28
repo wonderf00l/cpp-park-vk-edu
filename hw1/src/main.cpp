@@ -25,7 +25,7 @@ int parse_args(int argc, char* argv[], std::string& art_path, std::string& art_t
         switch (arg) {
             case 'a': {
                 if ((art_path = optarg) == "") {
-                    std::cout << "NO ARTIST DATASET PATH" << std::endl;
+                    std::cout << "NO ARTIST DATASET PATH!" << std::endl;
                     error = -1;
                 }
                 break;
