@@ -1,6 +1,0 @@
-/home/exy/park/C++/cpp-park-vk-edu/hw1/build/CMakeFiles/hw1.dir
-/home/exy/park/C++/cpp-park-vk-edu/hw1/build/CMakeFiles/edit_cache.dir
-/home/exy/park/C++/cpp-park-vk-edu/hw1/build/CMakeFiles/rebuild_cache.dir
-/home/exy/park/C++/cpp-park-vk-edu/hw1/build/lib/parser/CMakeFiles/arg_parser.dir
-/home/exy/park/C++/cpp-park-vk-edu/hw1/build/lib/parser/CMakeFiles/edit_cache.dir
-/home/exy/park/C++/cpp-park-vk-edu/hw1/build/lib/parser/CMakeFiles/rebuild_cache.dir
