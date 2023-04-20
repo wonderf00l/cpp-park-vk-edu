@@ -147,10 +147,6 @@ struct Base {
         return 2;
     }
     virtual ~Base() {}; // с virtual компилятор найдет именно компилятор Child в таблице virtual методов и вызовет его
-
-// protected: деструктор можно сделать приватным, тогда нельзя будет явно вне Base и наследников удалить объект через delete
-//     ~Base() {};
-
 };
 
 struct Child: public Base {
@@ -159,6 +155,54 @@ struct Child: public Base {
     }
     InnerData data_;
 };
+
+struct Child2: public Base {
+    Child2() {
+        std::cout << "child2 created" << std::endl;
+    }
+    InnerData data_;
+};
+
+// protected: деструктор можно сделать приватным, тогда нельзя будет явно вне Base и наследников удалить объект через delete
+//     ~Base() {};
+
+
+// АБСТРАКТНЫЕ КЛАССЫ
+struct BaseFile {
+    virtual ~BaseFile() {};
+    virtual std::string read_line() = 0;
+};
+
+struct TextFile : public BaseFile {
+    std::string read_line() override {};
+};
+
+struct ZipFile : public BaseFile {
+    std::string read_line() override {};
+};
+
+void CountFilms(const BaseFile& file) {}; // логика работы никак не меняется, меняются внутренние алгоритмы работы с данными
+
+
+//--- абстрактные классы
+
+struct Color {
+    int r, g, b;
+};
+
+struct ImgProvider {
+    virtual Color getBackgroundColor() = 0;
+};
+
+struct MyImgProvider : public ImgProvider {
+    Color getBackgroundColor() override {
+        return {0, 0, 0};
+    }
+};
+
+void CreateImg(const ImgProvider& img) {
+    std::cout << "creating img" << std::endl;
+}
 
 int main() {
     ListNode l(10, 20);
@@ -198,5 +242,25 @@ int main() {
     // деструктор должен быть виртуальным
 
     // если ПРЕДПОЛАГАЕТСЯ НАСЛЕДОВАНИЕ -- ПУБЛИЧНЫЙ ДЕСТРУКТОР ДОЛЖЕН БЫТЬ ВИРУТАЛЬНЫМ
+
+
+    // ПРИВЕДЕНИЕ ТИПОВ
+
+    // ПРОВЕРКИ std::numeric_limits перед кастом
+
+    //DOWNCAST БАЗОВОГО КЛАССА В НАСЛЕДНИКА
+
+    Child child;
+    Child2 child2;
+
+    Base& base_ref = child;
+    
+
+    Child2& child_ref = static_cast<Child2&>(base_ref); // DOWNCAST -- UB
+
+    
+    // через static_cast любые преоразования с void*
+
+    Child2& child_ref_ = dynamic_cast<Child2&>(base_ref); // безопасный DOWNCAST
 
 }
