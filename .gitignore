@@ -2,3 +2,7 @@ datasets
 build
 Makefile
 cmake_install.cmakegit
+hints*
+api*
+json*
+.vscode
