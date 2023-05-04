@@ -38,6 +38,7 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "tuple": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "fstream": "cpp"
     }
 }
