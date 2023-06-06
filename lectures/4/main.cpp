@@ -143,7 +143,7 @@ public:
 
     void add(int i) {
         if (!head) {
-            head.reset(new Node(i));
+            head.reset(new Node(i)); // replace managed object(default deleter is called automatically, can be custom, definition - in constructor)
             // (NodePtr) tail = std::move(head); - bye, head -- not correct -- только один указатель владеет ресурсом полностью(включая удаление), другой указатель должен быть сырым
             tail = head.get();
             return;
@@ -208,7 +208,7 @@ using NodeSPtr_ = std::shared_ptr<Node__>;
 
 struct Node__ {
     int data;
-    NodeSPtr_ next;
+    NodeSPtr_ next; // владеющий ptr, сохраняет жизнь нодам
     std::weak_ptr<Node__> prev; // если NodeSptr_ prev, то утечка
 
     explicit Node__(int i): data(i) {}
@@ -235,6 +235,38 @@ private:
     NodeSPtr_ tail;
 };
 
+struct Obj;
+
+void foo(const Obj&); // считывание данных из obj, obj не меняется
+void foo(Obj&); // obj можем измениться
+void foo(Obj); 
+
+
+// !!!
+void foo(const int&); // неэффективно, т.к. ссылка - языковая констуркция над указателем, фактически, чтобы получить доступ к значению, нужно выполнить операцию разыменования
+// если передавать по значению, в регистр сразу пойдет значение
+// более того, ссылка (читай, указатель) весит 8 байт(64-bit system), в то время как int - 4 байта
+void foo(int);
+
+void foo(Obj&&); // прощаемся с Data -- клиент вынужден писать std::move(arg)
+
+void foo(const Obj&&); // error
+
+void foo(std::shared_ptr<Obj>&); // работаем с САМИМИ SHARED_PTR, не с его внутренностями, если бы работали с Obj, передавалась бы ссылка на Obj
+void foo(const std::shared_ptr<Obj>&);  // аналогично: здесь только сбор данных о состоянии умного указателя
+// некорректно передавать умный указатель и рабоать с его содержимым, передаем сразу содержимое, например, через метод shared_ptr.get() по const ссылке
+
+void foo(std::shared_ptr<Obj>); // функция требует поделитсья данными умного указателя, работаем с содержимым умного указателя внутри функции, счетчик ссылок увеличивается
+
+void foo(std::unique_ptr<Obj>); // копирование запрещено, только перемещение --> можно передать только rvalue: либо собранный на лету объект, либо std::move(lval), в данном случае ЯВНО УКАЗАНО, ЧТО ОТНИМАЕМ ВЛАДЕНИЕМ ОБЪЕКТОМ
+void foo(std::unique_ptr<Obj>&); // можем также отнять ресурсы с такой сигнатурой, но это не так явно, делаем это через методы указателя внутри функции
+void foo(const std::unique_ptr<Obj>&); // almost useless -- better: const Obj&
+
+// 90 ПРОЦЕНТОВ СЛУЧАЕВ - ПЕРЕДАЧА УМНЫХ УКАЗАТЕЛЕЙ ПО ЗНАЧЕНИЮ
+// ЕСЛИ ХОТИМ ВСТУПИТЬ ВО ВЛАДЕНИЕ - ТРЕБУЕМ SHARED_PTR ПО ЗНАЧЕНИЮ
+// ХОТИМ ОТНЯТЬ ВЛАДЕНИЕ -- ТРЕБУЕМ UNIQUE_PTR ПО ЗНАЧЕНИЮ
+
+// как правило, предусматривается две перегрузки: одна принимает rvalue для более эффективной работы, другая  - const obj& - если передаем lvalue
 
 int main() {
     std::ifstream f = get_file(); // конструктор копирования ifstream запрещен
@@ -243,7 +275,7 @@ int main() {
     // BaseFile* ff = get_file__(); // полиморфизм только через указатели
 
     foo(std::string("striing")); // OK
-    const std::string& ref = std::string("123"); // OK
+    const std::string& ref = std::string("123"); // OK, if not const -- ERROR
 
     std::string&& ref_ = std::string("123");
 
